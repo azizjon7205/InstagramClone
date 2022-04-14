@@ -5,24 +5,24 @@ class User {
     var fullname: String = ""
     var email: String = ""
     var password: String = ""
-    var image: String = ""
+    var userImg: String = ""
 
     constructor(fullname: String, email: String) {
         this.fullname = fullname
         this.email = email
     }
 
-    constructor(fullname: String, email: String, image: String) {
+    constructor(fullname: String, email: String, userImg: String) {
         this.fullname = fullname
         this.email = email
-        this.image = image
+        this.userImg = userImg
     }
 
-    constructor(fullname: String, email: String, password: String, image: String) {
+    constructor(fullname: String, email: String, password: String, userImg: String) {
         this.fullname = fullname
         this.email = email
         this.password = password
-        this.image = image
+        this.userImg = userImg
     }
 
 

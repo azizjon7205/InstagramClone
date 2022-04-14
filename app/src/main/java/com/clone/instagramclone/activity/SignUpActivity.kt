@@ -7,7 +7,9 @@ import android.widget.EditText
 import android.widget.TextView
 import com.clone.instagramclone.R
 import com.clone.instagramclone.manager.AuthManager
+import com.clone.instagramclone.manager.DatabaseManager
 import com.clone.instagramclone.manager.handler.AuthHandler
+import com.clone.instagramclone.manager.handler.DBUserHandler
 import com.clone.instagramclone.model.User
 import com.clone.instagramclone.utils.Extensions.toast
 import java.lang.Exception
@@ -67,8 +69,17 @@ class SignUpActivity : BaseActivity() {
     }
 
     private fun storeUserDB(user: User) {
-        dismissLoading()
-        callMainActivity(this)
-        finish()
+        DatabaseManager.storeUser(user, object: DBUserHandler{
+            override fun onSuccess(user: User?) {
+                dismissLoading()
+                callMainActivity(this@SignUpActivity)
+            }
+
+            override fun onError(e: Exception) {
+
+            }
+
+        })
+
     }
 }

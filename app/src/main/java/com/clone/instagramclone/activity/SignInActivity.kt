@@ -46,7 +46,7 @@ class SignInActivity : BaseActivity() {
             override fun onSuccess(uid: String) {
                 dismissLoading()
                 toast(getString(R.string.str_signin_success))
-                callMainActivity(context)
+                callMainActivity(this@SignInActivity)
             }
 
             override fun onError(exception: Exception?) {

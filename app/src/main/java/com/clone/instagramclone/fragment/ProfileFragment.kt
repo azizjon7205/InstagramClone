@@ -8,17 +8,25 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.clone.instagramclone.R
 import com.clone.instagramclone.adapter.ProfileAdapter
 import com.clone.instagramclone.manager.AuthManager
+import com.clone.instagramclone.manager.DatabaseManager
+import com.clone.instagramclone.manager.StorageManager
+import com.clone.instagramclone.manager.handler.DBUserHandler
+import com.clone.instagramclone.manager.handler.StorageHandler
 import com.clone.instagramclone.model.Post
+import com.clone.instagramclone.model.User
 import com.clone.instagramclone.utils.Logger
 import com.google.android.material.imageview.ShapeableImageView
 import com.sangcomz.fishbun.FishBun
 import com.sangcomz.fishbun.adapter.image.impl.GlideAdapter
+import java.lang.Exception
 
 /**
  * In ProfileFragment, post that user uploaded can be seen and user is able to change his/her profile photo
@@ -27,6 +35,9 @@ import com.sangcomz.fishbun.adapter.image.impl.GlideAdapter
 class ProfileFragment : BaseFragment() {
     val TAG = ProfileFragment::class.java.simpleName
     lateinit var rv_profile: RecyclerView
+    lateinit var iv_profile: ShapeableImageView
+    lateinit var tv_fullname: TextView
+    lateinit var tv_email: TextView
 
     var pickedPhoto: Uri? = null
     var allPhotos = ArrayList<Uri>()
@@ -42,6 +53,9 @@ class ProfileFragment : BaseFragment() {
     }
 
     private fun initViews(view: View) {
+        tv_fullname = view.findViewById(R.id.tv_fullname)
+        tv_email = view.findViewById(R.id.tv_email)
+        iv_profile = view.findViewById(R.id.iv_profile)
         rv_profile = view.findViewById(R.id.rv_profile)
         rv_profile.layoutManager = GridLayoutManager(activity, 2)
 
@@ -51,12 +65,12 @@ class ProfileFragment : BaseFragment() {
             callSignInActivity(requireActivity())
         }
 
-        val iv_profile = view.findViewById<ShapeableImageView>(R.id.iv_profile)
         iv_profile.setOnClickListener{
             pickFishBunPhoto()
         }
         refreshAdapter(loadPosts())
 
+        loadUserInfo()
     }
 
     /**
@@ -75,19 +89,53 @@ class ProfileFragment : BaseFragment() {
         if (it.resultCode == Activity.RESULT_OK){
             allPhotos = it.data?.getParcelableArrayListExtra(FishBun.INTENT_PATH) ?: arrayListOf()
             pickedPhoto = allPhotos.get(0)
-            uploadPickedPhoto()
+            uploadUserPhoto()
         }
     }
 
-    private fun uploadPickedPhoto() {
-        if (pickedPhoto != null){
-            Logger.d(TAG, pickedPhoto!!.path.toString())
-        }
-    }
 
     private fun refreshAdapter(items: ArrayList<Post>){
         val adapter = ProfileAdapter(this, items)
         rv_profile.adapter = adapter
+    }
+
+    private fun uploadUserPhoto(){
+        if (pickedPhoto == null) return
+        StorageManager.uploadUserPhoto(pickedPhoto!!, object: StorageHandler{
+            override fun onSuccess(imgUrl: String) {
+                DatabaseManager.updateUserImage(imgUrl)
+                iv_profile.setImageURI(pickedPhoto)
+            }
+
+            override fun onError(exception: Exception) {
+
+            }
+
+        })
+    }
+
+    private fun loadUserInfo(){
+        DatabaseManager.loadUser(AuthManager.currentUser()!!.uid, object: DBUserHandler{
+            override fun onSuccess(user: User?) {
+                if (user != null){
+                    showUserInfo(user)
+                }
+            }
+
+            override fun onError(e: Exception) {
+
+            }
+
+        })
+    }
+
+    private fun showUserInfo(user: User) {
+        tv_fullname.text = user.fullname
+        tv_email.text = user.email
+        Glide.with(this).load(user.userImg)
+            .placeholder(R.drawable.ic_person)
+            .error(R.drawable.ic_person)
+            .into(iv_profile)
     }
 
     private fun loadPosts(): ArrayList<Post>{

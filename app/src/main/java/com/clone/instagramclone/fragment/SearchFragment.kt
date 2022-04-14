@@ -12,7 +12,10 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.clone.instagramclone.R
 import com.clone.instagramclone.adapter.SearchAdapter
+import com.clone.instagramclone.manager.DatabaseManager
+import com.clone.instagramclone.manager.handler.DBUsersHandler
 import com.clone.instagramclone.model.User
+import java.lang.Exception
 
 /**
  * In Search Fragment, all registered users can be found by searching keyboard and followed
@@ -73,17 +76,32 @@ class SearchFragment : BaseFragment() {
         refreshAdapter(users)
     }
 
-    private fun loadUsers(): ArrayList<User>{
-        items = ArrayList()
-        items.add(User("xurshid", "shamsun.com@gmail.com"))
-        items.add(User("begzod", "shamsun.com@gmail.com"))
-        items.add(User("sherzod", "shamsun.com@gmail.com"))
-        items.add(User("firdavs", "shamsun.com@gmail.com"))
-        items.add(User("xurshid", "shamsun.com@gmail.com"))
-        items.add(User("begzod", "shamsun.com@gmail.com"))
-        items.add(User("sherzod", "shamsun.com@gmail.com"))
-        items.add(User("firdavs", "shamsun.com@gmail.com"))
-        return items
+    private fun loadUsers(){
+        DatabaseManager.loadUsers(object : DBUsersHandler{
+            override fun onSuccess(users: ArrayList<User>) {
+                items.clear()
+                items.addAll(users)
+                refreshAdapter(items)
+            }
+
+            override fun onError(e: Exception) {
+
+            }
+
+        })
     }
+
+//    private fun loadUsers(): ArrayList<User>{
+//        items = ArrayList()
+//        items.add(User("xurshid", "shamsun.com@gmail.com"))
+//        items.add(User("begzod", "shamsun.com@gmail.com"))
+//        items.add(User("sherzod", "shamsun.com@gmail.com"))
+//        items.add(User("firdavs", "shamsun.com@gmail.com"))
+//        items.add(User("xurshid", "shamsun.com@gmail.com"))
+//        items.add(User("begzod", "shamsun.com@gmail.com"))
+//        items.add(User("sherzod", "shamsun.com@gmail.com"))
+//        items.add(User("firdavs", "shamsun.com@gmail.com"))
+//        return items
+//    }
 
 }

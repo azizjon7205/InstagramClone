@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.clone.instagramclone.R
 import com.clone.instagramclone.fragment.SearchFragment
 import com.clone.instagramclone.model.User
@@ -22,6 +23,7 @@ class SearchAdapter(var fragment: SearchFragment, var items: ArrayList<User>): B
         if (holder is UserViewHolder){
             holder.tv_fullname.text = user.fullname
             holder.tv_email.text = user.email
+            Glide.with(fragment).load(user.userImg).placeholder(R.drawable.ic_person).error(R.drawable.ic_person).into(holder.iv_profile)
         }
     }
 
